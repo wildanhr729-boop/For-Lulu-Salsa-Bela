@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Kamu ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0d0d0d;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            height: 100vh;
+            color: #ffb6c1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* --- 1. LOCK SCREEN --- */
+        #lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d0d0d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        #lock-screen h2 {
+            font-size: 18px;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .code-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #ff4d6d;
+            color: #ffb6c1;
+            font-size: 26px;
+            text-align: center;
+            width: 160px;
+            letter-spacing: 6px;
+            outline: none;
+            margin-bottom: 25px;
+        }
+
+        .btn-submit {
+            background: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            box-shadow: 0 0 15px rgba(255, 77, 109, 0.4);
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #ff758f;
+            transform: scale(1.05);
+        }
+
+        .error-msg {
+            color: #ff3333;
+            font-size: 12px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* --- 2. ADVANCED LOADING SCREEN --- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d0d0d;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
+        }
+
+        .heart-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .heart {
+            font-size: 70px;
+            color: #ff4d6d;
+            animation: deepPulse 1.2s infinite alternate cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-shadow: 0 0 30px #ff4d6d;
+        }
+
+        .heart-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 77, 109, 0.2);
+            border-radius: 50%;
+            filter: blur(10px);
+            animation: waveGlow 2.4s infinite linear;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #ffb6c1;
+            margin-bottom: 15px;
+        }
+
+        .dots::after {
+            content: '';
+            animation: blink 1.5s infinite;
+        }
+
+        .progress-container {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 182, 193, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4d6d, #ff758f);
+            box-shadow: 0 0 10px #ff4d6d;
+        }
+
+        /* --- 3. MAIN CONTENT --- */
+        #main-content {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: none;
+            opacity: 0;
+            transition: opacity 2s ease-in;
+        }
+
+        /* Teks Intro Awal */
+        #intro-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            letter-spacing: 3px;
+            text-align: center;
+            color: #ff4d6d;
+            text-shadow: 0 0 15px rgba(255, 77, 109, 0.6);
+            animation: fadeInOut 6s forwards;
+            z-index: 10;
+            pointer-events: none;
+            line-height: 1.8;
+        }
+
+        /* Foto + Teks Melayang */
+        .floating-item {
+            position: absolute;
+            bottom: -200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+            animation: floatUp 16s linear infinite;
+        }
+
+        .floating-item img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(255, 182, 193, 0.25);
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .floating-item span {
+            font-weight: bold;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+            white-space: nowrap;
+        }
+
+        /* Variasi Ukuran Objek Melayang */
+        .floating-item:nth-child(3n) img { width: 85px; height: 85px; opacity: 0.4; filter: blur(0.5px); }
+        .floating-item:nth-child(3n+1) img { width: 120px; height: 120px; opacity: 0.8; }
+        .floating-item:nth-child(3n+2) img { width: 140px; height: 140px; opacity: 0.6; }
+
+        .floating-item:nth-child(3n) span { font-size: 12px; color: rgba(255, 182, 193, 0.5); }
+        .floating-item:nth-child(3n+1) span { font-size: 14px; color: rgba(255, 182, 193, 0.95); }
+        .floating-item:nth-child(3n+2) span { font-size: 15px; color: rgba(255, 77, 109, 0.8); }
+
+        /* Kelopak Bunga Gugur */
+        .blossom {
+            position: absolute;
+            top: -20px;
+            color: #ffb6c1;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 5;
+            animation: fall linear infinite;
+        }
+
+        /* Jejak Mouse / Touch Trail */
+        .cursor-heart {
+            position: absolute;
+            pointer-events: none;
+            color: #ff4d6d;
+            font-size: 16px;
+            animation: fadeOutParticle 1s forwards;
+            z-index: 9999;
+        }
+
+        /* --- KEYFRAMES ANIMASI --- */
+        @keyframes deepPulse {
+            0% { transform: scale(0.95); filter: drop-shadow(0 0 5px rgba(255,77,109,0.5)); }
+            100% { transform: scale(1.23); filter: drop-shadow(0 0 25px rgba(255,77,109,1)); }
+        }
+
+        @keyframes waveGlow {
+            0% { width: 60px; height: 60px; opacity: 0.8; }
+            100% { width: 160px; height: 160px; opacity: 0; }
+        }
+
+        @keyframes blink {
+            0% { content: ''; }
+            33% { content: '.'; }
+            66% { content: '..'; }
+            100% { content: '...'; }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-135vh) translateX(60px) rotate(15deg); opacity: 0; }
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(105vh) translateX(120px) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes fadeOutParticle {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -120%) scale(0.3); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUDIO BACKGROUND: WILDFLOWER - Billie Eilish -->
+    <audio id="bgMusic" loop>
+        <source src="https://files.catbox.moe/5msc3s.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- 1. LOCK SCREEN -->
+    <div id="lock-screen">
+        <h2>Masukkan Kode Rahasia <br>Untuk Membuka Kenangan ❤️</h2>
+        <input type="password" id="inputCode" class="code-input" placeholder="••••••" maxlength="6">
+        <button class="btn-submit" onclick="checkCode()">Buka</button>
+        <div id="error" class="error-msg">Kodenya salah.. diingat-ingat lagi ya 🥺</div>
+    </div>
+
+    <!-- 2. LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="heart-container">
+            <div class="heart-glow"></div>
+            <div class="heart">❤️</div>
+        </div>
+        <div class="loading-text">Loading Memories<span class="dots"></span></div>
+        <div class="progress-container">
+            <div class="progress-bar" id="pBar"></div>
+        </div>
+    </div>
+
+    <!-- 3. MAIN CONTENT -->
+    <div id="main-content">
+        <div id="intro-text">Maafin aku ya.. 🥺<br>I'm really sorry, please look at this.</div>
+    </div>
+
+    <script>
+        const SECRET_CODE = "122308"; 
+
+        const memories = [
+            { text: "Maafin aku ya.. 🥺", img: "1.jpg" },
+            { text: "Aku gak bermaksud bikin kamu sedih", img: "2.jpg" },
+            { text: "Jangan diemin aku lagi dong..", img: "3.jpg" },
+            { text: "I'm really sorry ❤️", img: "4.jpg" },
+            { text: "I miss you so much", img: "5.jpg" },
+            { text: "We are very precious to my darling", img: "6.jpg" },
+            { text: "Aku sayang banget sama kamu", img: "1.jpg" },
+            { text: "Jangan marahan lagi yaa.. 🌸", img: "2.jpg" },
+            { text: "You mean everything to me", img: "3.jpg" }
+        ];
+
+        const blossoms = ["🌸", "💮", "✨", "❤️"];
+
+        const lockScreen = document.getElementById('lock-screen');
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainContent = document.getElementById('main-content');
+        const errorMsg = document.getElementById('error');
+        const bgMusic = document.getElementById('bgMusic');
+
+        function checkCode() {
+            const input = document.getElementById('inputCode').value;
+            if (input === SECRET_CODE) {
+                bgMusic.play().catch(e => console.log("Autoplay dicegah browser, musik dipicu interaksi pengguna."));
+
+                lockScreen.style.opacity = '0';
+                lockScreen.style.visibility = 'hidden';
+                
+                setTimeout(() => {
+                    lockScreen.style.display = 'none';
+                    loadingScreen.style.display = 'flex';
+                    animateProgressBar();
+                }, 1000);
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('inputCode').value = '';
+            }
+        }
+
+        function animateProgressBar() {
+            const pBar = document.getElementById('pBar');
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    startMainContent();
+                } else {
+                    width += 1;
+                    pBar.style.width = width + '%';
+                }
+            }, 35); 
+        }
+
+        function startMainContent() {
+            createFloatingItems();
+            createBlossoms();
+            setupCursorTrail();
+
+            loadingScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                setTimeout(() => {
+                    mainContent.style.opacity = '1';
+                }, 50);
+            }, 1000);
+        }
+
+        function createFloatingItems() {
+            memories.forEach((memory) => {
+                for (let i = 0; i < 3; i++) { 
+                    const item = document.createElement('div');
+                    item.classList.add('floating-item');
+
+                    const img = document.createElement('img');
+                    img.src = memory.img;
+                    img.onerror = function() { this.style.display = 'none'; };
+
+                    const text = document.createElement('span');
+                    text.innerText = memory.text;
+
+                    item.appendChild(img);
+                    item.appendChild(text);
+
+                    const randomLeft = Math.random() * 85; 
+                    const randomDelay = Math.random() * 25; 
+                    const randomDuration = 12 + Math.random() * 9; 
+
+                    item.style.left = `${randomLeft}%`;
+                    item.style.animationDelay = `${randomDelay}s`;
+                    item.style.animationDuration = `${randomDuration}s`;
+
+                    mainContent.appendChild(item);
+                }
+            });
+        }
+
+        function createBlossoms() {
+            for (let i = 0; i < 45; i++) {
+                const flower = document.createElement('div');
+                flower.classList.add('blossom');
+                flower.innerText = blossoms[Math.floor(Math.random() * blossoms.length)];
+                
+                const randomLeft = Math.random() * 100;
+                const randomDelay = Math.random() * 15;
+                const randomDuration = 6 + Math.random() * 8;
+                const randomSize = 12 + Math.random() * 14;
+
+                flower.style.left = `${randomLeft}%`;
+                flower.style.animationDelay = `${randomDelay}s`;
+                flower.style.animationDuration = `${randomDuration}s`;
+                flower.style.fontSize = `${randomSize}px`;
+                flower.style.opacity = Math.random() * 0.7 + 0.3;
+
+                mainContent.appendChild(flower);
+            }
+        }
+
+        function setupCursorTrail() {
+            const handleTrail = (e) => {
+                const x = e.clientX || (e.touches && e.touches[0].clientX);
+                const y = e.clientY || (e.touches && e.touches[0].clientY);
+
+                if (!x || !y || Math.random() > 0.25) return; 
+
+                const particle = document.createElement('div');
+                particle.classList.add('cursor-heart');
+                particle.innerText = Math.random() > 0.5 ? "❤️" : "✨";
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+
+                document.body.appendChild(particle);
+
+                setTimeout(() => { particle.remove(); }, 1000);
+            };
+
+            window.addEventListener('mousemove', handleTrail);
+            window.addEventListener('touchmove', handleTrail);
+        }
+    </script>
+</body>
+</html>
